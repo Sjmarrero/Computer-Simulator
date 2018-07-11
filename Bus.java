@@ -4,13 +4,13 @@ public class Bus implements BusInterface {
   
   private int integer;
 	
-	public void setInteger (int a ) {
+	public void setValue(int a ) {
 		
 		integer = a;
 	
 	}
 	
-	public int getInteger() {
+	public int getValue() {
 		
 		return integer;
 	

@@ -4,13 +4,9 @@ public class main {
 
 	public static void main(String[] args) {
 		
-		public static void main(String[] args) {
+	Computer comp  = new Computer();
 		
-		Computer comp  = new Computer();
-		
-		comp.run();
-	}
-		
+	comp.run();		
 	}
 
 }

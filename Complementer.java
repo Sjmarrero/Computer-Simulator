@@ -6,9 +6,10 @@ public class Complementer implements ComplementerInterface {
 		
 	}
 	
-	public void changeSign( int a) {
+	public int changeSign( int a) {
 		
 		a = ( (-1) * a);
+		return a;
 	
 	}
 	

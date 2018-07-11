@@ -1,5 +1,9 @@
 package part1;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class Reader implements ReaderInterface {
   
   private int a;
@@ -8,18 +12,19 @@ public class Reader implements ReaderInterface {
 		
 	}
 	
-	public void storeInteger() throws IOException {	
+	public void storeValue() throws IOException {	
 	
-	System.out.println(" Enter the integer: ");
+	System.out.println("Enter the integer * ");
 	
 	BufferedReader br = new BufferedReader (new InputStreamReader (System.in));
 	
 	String str = br.readLine();
 	
 	a = Integer.parseInt(str);
-	
-	System .out.print("* ");
-	
+	}
+
+	public int getValue() {
+		return a;
 	}
 
 

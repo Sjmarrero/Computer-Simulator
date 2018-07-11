@@ -7,15 +7,14 @@ public class Register implements RegisterInterface {
 	public Register() {
 		value = 0;
 	}
-	
-	@Override
-	public void setValue(int input) {
-		value = input;
-	}
 
 	@Override
 	public int getValue() {
 		return value;
+	}
+
+	public void setValue(int integer) {
+		value = integer;
 	}
 
 }
