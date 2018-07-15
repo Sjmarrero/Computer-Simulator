@@ -1,6 +1,9 @@
 package part1;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Scanner;
 
 public class Computer implements ComputerInterface {
   
@@ -42,40 +45,59 @@ public class Computer implements ComputerInterface {
 		r3 = new Register();
 	}
 	
-	public void run() {
+	public void run() throws FileNotFoundException {
 		
-		//READ
-		readInstruction();
-		//MOVE R0, R1
-		moveInstruction(r0, r1);
-		//READ
-		readInstruction();
-		//MOVE R0, R2
-		moveInstruction(r0, r2);
-		//ADD R1, R2, R3
-		addInstruction(r1, r2, r3);
-		//MOVE R3, R0
-		moveInstruction(r3, r0);
-		//PRINT
-		printInstruction();
-		//READ
-		readInstruction();
-		//MOVE R0, R1
-		moveInstruction(r0, r1);
-		//SUB R1, R3, R0
-		subInstruction(r1, r3, r0);
-		//PRINT
-		printInstruction();
-		//READ
-		readInstruction();
-		//MOVE R0, R2
-		moveInstruction(r0,r2);
-		//ADD R3, R2, R1
-		addInstruction(r3, r2, r1);
-		//MOVE R1, R0
-		moveInstruction(r1, r0);
-		//PRINT
-		printInstruction();
+		String instruction;
+		String[] registers;
+		int regNumber;
+		Register[] tempRegister = new Register[3];
+
+		File programFile= new File("program.txt");
+		Scanner program = new Scanner(programFile);
+		while(program.hasNext()) {
+			instruction = program.next();
+			instruction = instruction.toLowerCase();
+			if(instruction.equals("read")) {
+				readInstruction();
+			}
+			else if(instruction.equals("move") || instruction.equals("add")
+					|| instruction.equals("sub")) {
+				String registerString = program.nextLine();
+				registerString = registerString.replaceAll("\\s","");
+				registers = registerString.split(",");
+				for(int i = 0; i < registers.length; i++) {
+					regNumber = Character.getNumericValue(registers[i].charAt(1));
+					switch(regNumber) {
+					case 0:
+						tempRegister[i] = r0;
+						break;
+					case 1:
+						tempRegister[i] = r1;
+						break;
+					case 2:
+						tempRegister[i] = r2;
+						break;
+					case 3:
+						tempRegister[i] = r3;
+						break;
+						default:
+							System.out.println(registers[i] + " does not exist");
+					}
+				}
+				if(instruction.equals("move"))
+					moveInstruction(tempRegister[0], tempRegister[1]);
+				else if(instruction.equals("add"))
+					addInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
+				else
+					subInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
+			}
+			else if(instruction.equals("print")) {
+				printInstruction();
+			}
+			else
+				System.out.println(instruction.toUpperCase() + "- incompatible instruction");
+		}
+		program.close();
 	}
 	
 	private void readInstruction(){
@@ -89,7 +111,7 @@ public class Computer implements ComputerInterface {
 	}
 	
 	private void moveInstruction(Register ra, Register rb) {
-		System.err.println("\t\t\tMOVE " + ra + "," + rb); //for instruction trace
+		System.err.println("\t\t\tMOVE " + ra + "," + rb + "\n"); //for instruction trace
 		rb.setValue(ra.getValue());
 
 	}
@@ -109,7 +131,6 @@ public class Computer implements ComputerInterface {
 		int complementValue;
 		
 		complementValue = complementer.changeSign(ra.getValue());
-		System.out.println("Complement: " + complementValue);
 		System.err.println("\t\t\tSUBTRACT " + ra + "," + rb + "," + rc); //for instruction trace
 		adder.add(complementValue, rb.getValue());
 		rc.setValue(adder.getSum());
