@@ -6,15 +6,15 @@ import java.io.InputStreamReader;
 
 public class Reader implements ReaderInterface {
   
-  private int a;
+	private int a;
 	
 	public Reader() {
-		
+		a = 0;
 	}
 	
 	public void storeValue() throws IOException {	
 	
-	System.out.println("Enter the integer * ");
+	System.out.println("* ");
 	
 	BufferedReader br = new BufferedReader (new InputStreamReader (System.in));
 	

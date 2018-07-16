@@ -2,17 +2,19 @@ package part1;
 
 public class Complementer implements ComplementerInterface {
   
-  public Complementer( ) {
+	private int value;
+	
+	public Complementer( ) {
+		value = 0;
 		
 	}
 	
-	public int changeSign( int a) {
-		
-		a = ( (-1) * a);
-		return a;
-	
+	public void setValue(int a) {
+		value = a;
 	}
 	
-	
+	public int getValue() {
+		return -value;
+	}
 
 }

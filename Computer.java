@@ -118,22 +118,21 @@ public class Computer implements ComputerInterface {
 	
 	private void addInstruction(Register ra, Register rb, Register rc) {
 		System.err.println("\t\t\tADD " + ra + "," + rb + "," + rc); //for instruction trace
-		adder.add(ra.getValue(), rb.getValue());
-		rc.setValue(adder.getSum());
+		adder.setValues(ra.getValue(), rb.getValue());
+		rc.setValue(adder.add());
 	}
 	
 	private void printInstruction() {
 		bus.setValue(r0.getValue());
-		printer.printValue(bus.getValue());
+		printer.setValue(bus.getValue());
+		printer.printValue();
 	}
 	
 	private void subInstruction(Register ra, Register rb, Register rc) {
-		int complementValue;
-		
-		complementValue = complementer.changeSign(ra.getValue());
 		System.err.println("\t\t\tSUBTRACT " + ra + "," + rb + "," + rc); //for instruction trace
-		adder.add(complementValue, rb.getValue());
-		rc.setValue(adder.getSum());
+		complementer.setValue(ra.getValue());
+		adder.setValues(complementer.getValue(), rb.getValue());
+		rc.setValue(adder.add());
 	}
 
 }

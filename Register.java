@@ -8,13 +8,12 @@ public class Register implements RegisterInterface {
 		value = 0;
 	}
 
-	@Override
-	public int getValue() {
-		return value;
-	}
-
 	public void setValue(int integer) {
 		value = integer;
+	}
+	
+	public int getValue() {
+		return value;
 	}
 
 }

@@ -3,19 +3,20 @@ package part1;
 public class Bus implements BusInterface {
   
   private int integer;
-	
-	public void setValue(int a ) {
+  
+  public Bus() {
+	  integer = 0;
+  }
+  
+  public void setValue(int a ) {
 		
-		integer = a;
+	  integer = a;
+	  
+  }
 	
-	}
+  public int getValue() {
+	  
+	  return integer;
+  }
 	
-	public int getValue() {
-		
-		return integer;
-	
-	}
-	
-	
-
 }
