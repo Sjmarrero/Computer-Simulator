@@ -1,4 +1,4 @@
-package part1;
+package part2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,6 +16,12 @@ public class Computer implements ComputerInterface {
 	private Printer printer;
 	
 	private Reader reader;
+	
+	private MemoryAddressRegister MAR;
+	
+	private MemoryDataRegister MDR;
+	
+	private MemoryControl memoryControl;
 
 	private Register r0;
 	
@@ -24,6 +30,8 @@ public class Computer implements ComputerInterface {
 	private Register r2;
 	
 	private Register r3;
+	
+	private Status status;
 	
 	
 	
@@ -39,10 +47,14 @@ public class Computer implements ComputerInterface {
 		bus = new Bus();
 		printer = new Printer();
 		reader = new Reader();
+		MAR = new MemoryAddressRegister();
+		MDR = new MemoryDataRegister();
+		memoryControl = new MemoryControl();
 		r0 = new Register();
 		r1 = new Register();
 		r2 = new Register();
 		r3 = new Register();
+		status = new Status();
 	}
 	
 	public void run() throws FileNotFoundException {
@@ -52,7 +64,7 @@ public class Computer implements ComputerInterface {
 		int regNumber;
 		Register[] tempRegister = new Register[3];
 
-		File programFile= new File("program.txt");
+		File programFile= new File("program2.txt");
 		Scanner program = new Scanner(programFile);
 		while(program.hasNext()) {
 			instruction = program.next();
@@ -91,6 +103,46 @@ public class Computer implements ComputerInterface {
 				else
 					subInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
 			}
+			else if(instruction.equals("load") || instruction.equals("store")) {
+				int value;
+				String registerString = program.nextLine();
+				registerString = registerString.toLowerCase();
+				registerString = registerString.replaceAll("\\s","");
+				registers = registerString.split(",");
+				for(int i = 0; i < 2; i++) {
+					if(registers[i].charAt(0) == 'r') {
+						regNumber = Character.getNumericValue(registers[i].charAt(1));
+						switch(regNumber) {
+						case 0:
+							tempRegister[i] = r0;
+							break;
+						case 1:
+							tempRegister[i] = r1;
+							break;
+						case 2:
+							tempRegister[i] = r2;
+							break;
+						case 3:
+							tempRegister[i] = r3;
+							break;
+							default:
+								System.out.println(registers[i] + " does not exist");
+						}
+					}
+					else {
+						value = Integer.parseInt(registers[1]);
+						Register temp = new Register();
+						temp.setValue(value);
+						tempRegister[i] = temp;
+					}
+				}
+				if(instruction.equals("load")) {
+					loadInstruction(tempRegister[0], tempRegister[1]);
+				}
+				else {
+					storeInstruction(tempRegister[0], tempRegister[1]);
+				}
+			}
 			else if(instruction.equals("print")) {
 				printInstruction();
 			}
@@ -101,13 +153,17 @@ public class Computer implements ComputerInterface {
 	}
 	
 	private void readInstruction(){
-		try {
-			reader.storeValue();
-		} catch (IOException e) {
-			e.printStackTrace();
+		bus.setControlLines("read");
+		if(bus.getControlLines().equals("read"))
+		{
+			try {
+				reader.storeValue();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		bus.setDataLines(reader.getValue());
+		r0.setValue(bus.getDataLines());
 		}
-		bus.setValue(reader.getValue());
-		r0.setValue(bus.getValue());
 	}
 	
 	private void moveInstruction(Register ra, Register rb) {
@@ -120,12 +176,19 @@ public class Computer implements ComputerInterface {
 		System.err.println("\t\t\tADD " + ra + "," + rb + "," + rc); //for instruction trace
 		adder.setValues(ra.getValue(), rb.getValue());
 		rc.setValue(adder.add());
+		System.out.println(rc.getValue());
+		if(rc.getValue() == 0) {
+			status.setZero();
+		}
 	}
 	
 	private void printInstruction() {
-		bus.setValue(r0.getValue());
-		printer.setValue(bus.getValue());
-		printer.printValue();
+		bus.setControlLines("write");
+		if(bus.getControlLines().equals("write")) {
+			bus.setDataLines(r0.getValue());
+			printer.setValue(bus.getDataLines());
+			printer.printValue();
+		}
 	}
 	
 	private void subInstruction(Register ra, Register rb, Register rc) {
@@ -133,6 +196,40 @@ public class Computer implements ComputerInterface {
 		complementer.setValue(ra.getValue());
 		adder.setValues(complementer.getValue(), rb.getValue());
 		rc.setValue(adder.add());
+		if(rc.getValue() == 0) {
+			status.setZero();
+		}
+	}
+	
+	private void loadInstruction(Register destination, int source) {
+		MAR.setAddress(source);
+		bus.setAddressLines(MAR.getAddress());
+		bus.setControlLines("read");
+		memoryControl.execute(bus);
+		MDR.setValue(bus.getDataLines());
+		destination.setValue(MDR.getValue());
+	}
+	
+	private void loadInstruction(Register destination, Register source) {
+		loadInstruction(destination, source.getValue());
+	}
+	
+	private void storeInstruction(Register source, int destination) {
+		MAR.setAddress(destination);
+		bus.setAddressLines(MAR.getAddress());
+		MDR.setValue(source.getValue());
+		bus.setDataLines(MDR.getValue());
+		bus.setControlLines("write");
+		memoryControl.execute(bus);
+	}
+	
+	private void storeInstruction(Register source, Register destination) {
+		storeInstruction(source, destination.getValue());
+	}
+	
+	private void decInstruction(Register ra) {
+		adder.setValues(ra.getValue(), -1);
+		ra.setValue(adder.add());
 	}
 
 }
