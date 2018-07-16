@@ -1,4 +1,4 @@
-package part1;
+package part2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,6 +16,14 @@ public class Computer implements ComputerInterface {
 	private Printer printer;
 	
 	private Reader reader;
+	
+	private MemoryAddressRegister MAR;
+	
+	private MemoryDataRegister MDR;
+	
+	private Memory memory;
+	
+	private MemoryControl memoryControl;
 
 	private Register r0;
 	
@@ -39,6 +47,10 @@ public class Computer implements ComputerInterface {
 		bus = new Bus();
 		printer = new Printer();
 		reader = new Reader();
+		MAR = new MemoryAddressRegister();
+		MDR = new MemoryDataRegister();
+		memory = new Memory();
+		memoryControl = new MemoryControl();
 		r0 = new Register();
 		r1 = new Register();
 		r2 = new Register();
@@ -133,6 +145,21 @@ public class Computer implements ComputerInterface {
 		complementer.setValue(ra.getValue());
 		adder.setValues(complementer.getValue(), rb.getValue());
 		rc.setValue(adder.add());
+	}
+	
+	private void loadInstruction(Register destination, int source) {
+		MAR.setAddress(source);
+		bus.setAddressLines(MAR.getAddress());
+		bus.setControlLines("read");
+		memoryControl.execute(bus);
+		//destination.setValue(MDR.getValue());
+	}
+	
+	private void storeInstruction(Register source, int destination) {
+		MAR.setAddress(destination);
+		bus.setAddressLines(MAR.getAddress());
+		bus.setControlLines("write");
+		memoryControl.execute(bus);
 	}
 
 }
