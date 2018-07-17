@@ -65,15 +65,20 @@ public class Computer implements ComputerInterface {
 		Scanner program = new Scanner(programFile);
 		while(program.hasNext()) {
 			instruction = program.nextLine();
-			callInstruction(instruction);
+			if(instruction.contains(":")) {
+				instruction = instruction.substring(instruction.indexOf(':')+1).trim();
+				loopInstruction(instruction, program);
+			}
+			else
+				callInstruction(instruction);
 		}
 		program.close();
 		memoryControl.dumpMemory();
 	}
-	
-	private void callInstruction(String instructionLine) {
+
+	private boolean callInstruction(String instructionLine) {
 		if(instructionLine.trim().isEmpty())
-			return;
+			return true;
 		Register[] tempRegister = new Register[3];
 		instructionLine = instructionLine.toLowerCase();
 		int firstSpace = instructionLine.indexOf(' ');
@@ -84,8 +89,8 @@ public class Computer implements ComputerInterface {
 		}
 		else
 			instruction = instructionLine;
-		if(instruction.charAt(instruction.length()-1) == ':') {
-			
+		if(instruction.equals("brnz")) {
+			return status.getZero();
 		}
 		else if(instruction.equals("read")) {
 			readInstruction();
@@ -111,11 +116,17 @@ public class Computer implements ComputerInterface {
 				storeInstruction(tempRegister[0], tempRegister[1]);
 			}
 		}
+		else if(instruction.equals("dec")) {
+			String registerString = instructionLine.substring(firstSpace, instructionLine.length());
+			tempRegister = getRegisters(registerString);
+			decInstruction(tempRegister[0]);
+		}
 		else if(instruction.equals("print")) {
 			printInstruction();
 		}
 		else
 			System.out.println(instruction.toUpperCase() + "- incompatible instruction");
+		return status.getZero();
 	}
 
 	private Register[] getRegisters(String regString) {
@@ -254,6 +265,31 @@ public class Computer implements ComputerInterface {
 	private void decInstruction(Register ra) {
 		adder.setValues(ra.getValue(), -1);
 		ra.setValue(adder.add());
+		if(ra.getValue() == 0) {
+			status.setZero();
+		}
+		else
+			status.unsetZero();
+	}
+	
+	private void loopInstruction(String instruction, Scanner program) {
+		boolean zero = false;
+		String instructionLine = "";
+		String instructions = instruction + "@";
+		while(!instructionLine.contains("brnz")) {
+			instructionLine = program.nextLine().toLowerCase();
+			if(!instructionLine.trim().isEmpty())
+				instructions += instructionLine + "@";
+		}
+		String[] instructionLoop = instructions.split("@");
+		int index = 0;
+		while(!zero) {
+			instruction = instructionLoop[index++];
+			zero = callInstruction(instruction);
+			if(index == instructionLoop.length)
+				index = 0;
+		}
+		
 	}
 
 }
