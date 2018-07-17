@@ -60,114 +60,118 @@ public class Computer implements ComputerInterface {
 	public void run() throws FileNotFoundException {
 		
 		String instruction;
-		String[] registers;
-		int regNumber;
-		Register[] tempRegister = new Register[3];
 
 		File programFile= new File("program2.txt");
 		Scanner program = new Scanner(programFile);
 		while(program.hasNext()) {
-			instruction = program.next();
-			instruction = instruction.toLowerCase();
-			if(instruction.equals("read")) {
-				readInstruction();
-			}
-			else if(instruction.equals("move") || instruction.equals("add")
-					|| instruction.equals("sub")) {
-				String registerString = program.nextLine();
-				registerString = registerString.replaceAll("\\s","");
-				registers = registerString.split(",");
-				for(int i = 0; i < registers.length; i++) {
-					regNumber = Character.getNumericValue(registers[i].charAt(1));
-					switch(regNumber) {
-					case 0:
-						tempRegister[i] = r0;
-						break;
-					case 1:
-						tempRegister[i] = r1;
-						break;
-					case 2:
-						tempRegister[i] = r2;
-						break;
-					case 3:
-						tempRegister[i] = r3;
-						break;
-						default:
-							System.out.println(registers[i] + " does not exist");
-					}
-				}
-				if(instruction.equals("move"))
-					moveInstruction(tempRegister[0], tempRegister[1]);
-				else if(instruction.equals("add"))
-					addInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
-				else
-					subInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
-			}
-			else if(instruction.equals("load") || instruction.equals("store")) {
-				int value;
-				String registerString = program.nextLine();
-				registerString = registerString.toLowerCase();
-				registerString = registerString.replaceAll("\\s","");
-				registers = registerString.split(",");
-				for(int i = 0; i < 2; i++) {
-					char firstChar = registers[i].charAt(0);
-					if(firstChar == 'r' || firstChar == '(') {
-						if(firstChar == '(') {
-							regNumber = Character.getNumericValue(registers[i].charAt(2));
-						}
-						else
-							regNumber = Character.getNumericValue(registers[i].charAt(1));
-						switch(regNumber) {
-						case 0:
-							tempRegister[i] = r0;
-							break;
-						case 1:
-							tempRegister[i] = r1;
-							break;
-						case 2:
-							tempRegister[i] = r2;
-							break;
-						case 3:
-							tempRegister[i] = r3;
-							break;
-							default:
-								System.out.println(registers[i] + " does not exist");
-						}
-						if(firstChar == '(' && registers[i].charAt(registers[i].length()-1) == '+') {
-							tempRegister[i].setValue(tempRegister[i].getValue() + 1);
-						}
-					}
-					else if(firstChar == '#') {
-						registers[i] = registers[i].replaceAll("#", "");
-						value = Integer.parseInt(registers[i]);
-						Register temp = new Register();
-						temp.setValue(value);
-						tempRegister[i] = temp;
-					}
-					else {
-						value = Integer.parseInt(registers[i]);
-						Register temp = new Register();
-						temp.setValue(value);
-						tempRegister[i] = temp;
-					}
-				}
-				if(instruction.equals("load")) {
-					loadInstruction(tempRegister[0], tempRegister[1]);
-				}
-				else {
-					storeInstruction(tempRegister[0], tempRegister[1]);
-				}
-			}
-			else if(instruction.equals("print")) {
-				printInstruction();
-			}
-			else
-				System.out.println(instruction.toUpperCase() + "- incompatible instruction");
+			instruction = program.nextLine();
+			callInstruction(instruction);
 		}
 		program.close();
 		memoryControl.dumpMemory();
 	}
 	
+	private void callInstruction(String instructionLine) {
+		if(instructionLine.trim().isEmpty())
+			return;
+		Register[] tempRegister = new Register[3];
+		instructionLine = instructionLine.toLowerCase();
+		int firstSpace = instructionLine.indexOf(' ');
+		String instruction;
+		
+		if(firstSpace != -1) {
+			instruction = instructionLine.substring(0, firstSpace);
+		}
+		else
+			instruction = instructionLine;
+		if(instruction.charAt(instruction.length()-1) == ':') {
+			
+		}
+		else if(instruction.equals("read")) {
+			readInstruction();
+		}
+		else if(instruction.equals("move") || instruction.equals("add")
+				|| instruction.equals("sub")) {
+			String registerString = instructionLine.substring(firstSpace, instructionLine.length());
+			tempRegister = getRegisters(registerString);
+			if(instruction.equals("move"))
+				moveInstruction(tempRegister[0], tempRegister[1]);
+			else if(instruction.equals("add"))
+				addInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
+			else
+				subInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
+		}
+		else if(instruction.equals("load") || instruction.equals("store")) {
+			String registerString = instructionLine.substring(firstSpace+1, instructionLine.length());
+			tempRegister = getRegisters(registerString);
+			if(instruction.equals("load")) {
+				loadInstruction(tempRegister[0], tempRegister[1]);
+			}
+			else {
+				storeInstruction(tempRegister[0], tempRegister[1]);
+			}
+		}
+		else if(instruction.equals("print")) {
+			printInstruction();
+		}
+		else
+			System.out.println(instruction.toUpperCase() + "- incompatible instruction");
+	}
+
+	private Register[] getRegisters(String regString) {
+		String[] registers; 
+		Register[] temp = new Register[3];
+		int regNumber, value;
+		
+		regString = regString.toLowerCase();
+		regString = regString.replaceAll("\\s","");
+		registers = regString.split(",");
+		
+		for(int i = 0; i < registers.length; i++) {
+			char firstChar = registers[i].charAt(0);
+			if(firstChar == 'r' || firstChar == '(') {
+				if(firstChar == '(') {
+					regNumber = Character.getNumericValue(registers[i].charAt(2));
+				}
+				else
+					regNumber = Character.getNumericValue(registers[i].charAt(1));
+				switch(regNumber) {
+				case 0:
+					temp[i] = r0;
+					break;
+				case 1:
+					temp[i] = r1;
+					break;
+				case 2:
+					temp[i] = r2;
+					break;
+				case 3:
+					temp[i] = r3;
+					break;
+					default:
+						System.out.println(registers[i] + " does not exist");
+				}
+				if(firstChar == '(' && registers[i].charAt(registers[i].length()-1) == '+') {
+					temp[i].setValue(temp[i].getValue() + 1);
+				}
+			}
+			else if(firstChar == '#') {
+				registers[i] = registers[i].replaceAll("#", "");
+				value = Integer.parseInt(registers[i]);
+				Register tempReg = new Register();
+				tempReg.setValue(value);
+				temp[i] = tempReg;
+			}
+			else {
+				value = Integer.parseInt(registers[i]);
+				Register tempReg = new Register();
+				tempReg.setValue(value);
+				temp[i] = tempReg;
+			}
+		}
+		return temp;
+	}
+
 	private void readInstruction(){
 		bus.setControlLines("read");
 		if(bus.getControlLines().equals("read"))
