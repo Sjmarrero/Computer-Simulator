@@ -14,7 +14,7 @@ public class Reader implements ReaderInterface {
 	
 	public void storeValue() throws IOException {	
 	
-	System.out.println("* ");
+	System.out.print("* ");
 	
 	BufferedReader br = new BufferedReader (new InputStreamReader (System.in));
 	

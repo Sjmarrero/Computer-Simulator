@@ -12,6 +12,10 @@ public class Status {
 		zero = true;
 	}
 	
+	public void unsetZero() {
+		zero = false;
+	}
+	
 	public boolean getZero() {
 		return zero;
 	}

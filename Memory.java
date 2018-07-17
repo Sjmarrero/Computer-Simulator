@@ -15,4 +15,14 @@ public class Memory {
 	public void set(int data, int location) {
 		memory[location] = data;
 	}
+	
+	public void dump() {
+		System.out.print("Address\t\t\tContent\n");
+		System.out.println("-------------------------------");
+		for(int i = 0; i < memory.length; i++) {
+			if(memory[i] != 0) {
+				System.out.println(i + "\t\t\t" + memory[i]);
+			}
+		}
+	}
 }

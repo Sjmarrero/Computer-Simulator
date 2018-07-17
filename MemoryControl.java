@@ -25,5 +25,9 @@ public class MemoryControl {
 		else
 			System.out.println("ControlLine Error: " + controlSignal);
 	}
+	
+	public void dumpMemory() {
+		memory.dump();
+	}
 
 }

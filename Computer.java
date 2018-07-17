@@ -110,8 +110,13 @@ public class Computer implements ComputerInterface {
 				registerString = registerString.replaceAll("\\s","");
 				registers = registerString.split(",");
 				for(int i = 0; i < 2; i++) {
-					if(registers[i].charAt(0) == 'r') {
-						regNumber = Character.getNumericValue(registers[i].charAt(1));
+					char firstChar = registers[i].charAt(0);
+					if(firstChar == 'r' || firstChar == '(') {
+						if(firstChar == '(') {
+							regNumber = Character.getNumericValue(registers[i].charAt(2));
+						}
+						else
+							regNumber = Character.getNumericValue(registers[i].charAt(1));
 						switch(regNumber) {
 						case 0:
 							tempRegister[i] = r0;
@@ -128,9 +133,19 @@ public class Computer implements ComputerInterface {
 							default:
 								System.out.println(registers[i] + " does not exist");
 						}
+						if(firstChar == '(' && registers[i].charAt(registers[i].length()-1) == '+') {
+							tempRegister[i].setValue(tempRegister[i].getValue() + 1);
+						}
+					}
+					else if(firstChar == '#') {
+						registers[i] = registers[i].replaceAll("#", "");
+						value = Integer.parseInt(registers[i]);
+						Register temp = new Register();
+						temp.setValue(value);
+						tempRegister[i] = temp;
 					}
 					else {
-						value = Integer.parseInt(registers[1]);
+						value = Integer.parseInt(registers[i]);
 						Register temp = new Register();
 						temp.setValue(value);
 						tempRegister[i] = temp;
@@ -150,6 +165,7 @@ public class Computer implements ComputerInterface {
 				System.out.println(instruction.toUpperCase() + "- incompatible instruction");
 		}
 		program.close();
+		memoryControl.dumpMemory();
 	}
 	
 	private void readInstruction(){
@@ -180,6 +196,8 @@ public class Computer implements ComputerInterface {
 		if(rc.getValue() == 0) {
 			status.setZero();
 		}
+		else
+			status.unsetZero();
 	}
 	
 	private void printInstruction() {
@@ -199,6 +217,8 @@ public class Computer implements ComputerInterface {
 		if(rc.getValue() == 0) {
 			status.setZero();
 		}
+		else
+			status.unsetZero();
 	}
 	
 	private void loadInstruction(Register destination, int source) {
