@@ -70,6 +70,7 @@ public class Computer implements ComputerInterface {
 			else if(instruction.contains(":")) {
 				instruction = instruction.substring(instruction.indexOf(':')+1).trim();
 				loopInstruction(instruction, program);
+				status.unsetZero();
 			}
 			else
 				callInstruction(instruction);
@@ -207,7 +208,6 @@ public class Computer implements ComputerInterface {
 		System.err.println("\t\t\tADD " + ra + "," + rb + "," + rc); //for instruction trace
 		adder.setValues(ra.getValue(), rb.getValue());
 		rc.setValue(adder.add());
-		System.out.println(rc.getValue());
 		if(rc.getValue() == 0) {
 			status.setZero();
 		}
