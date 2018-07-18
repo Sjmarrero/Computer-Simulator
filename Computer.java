@@ -65,7 +65,9 @@ public class Computer implements ComputerInterface {
 		Scanner program = new Scanner(programFile);
 		while(program.hasNext()) {
 			instruction = program.nextLine();
-			if(instruction.contains(":")) {
+			if(instruction.trim().isEmpty())
+				continue;
+			else if(instruction.contains(":")) {
 				instruction = instruction.substring(instruction.indexOf(':')+1).trim();
 				loopInstruction(instruction, program);
 			}
@@ -77,8 +79,6 @@ public class Computer implements ComputerInterface {
 	}
 
 	private boolean callInstruction(String instructionLine) {
-		if(instructionLine.trim().isEmpty())
-			return true;
 		Register[] tempRegister = new Register[3];
 		instructionLine = instructionLine.toLowerCase();
 		int firstSpace = instructionLine.indexOf(' ');
@@ -275,7 +275,9 @@ public class Computer implements ComputerInterface {
 	private void loopInstruction(String instruction, Scanner program) {
 		boolean zero = false;
 		String instructionLine = "";
-		String instructions = instruction + "@";
+		String instructions = "";
+		if(!instruction.trim().isEmpty())
+			instructions = instruction + "@";
 		while(!instructionLine.contains("brnz")) {
 			instructionLine = program.nextLine().toLowerCase();
 			if(!instructionLine.trim().isEmpty())
