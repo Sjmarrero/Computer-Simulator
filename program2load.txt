@@ -1,0 +1,22 @@
+read
+store r0, 50
+read
+store r0,(r1)
+read
+store r0,(r1)+
+load r0, 50
+print
+load r0,(r2)
+print
+load r0,(r2)+
+print
+load r0, #1
+print
+read
+store r0, 1023
+move r2, r0
+load r0, 1023
+print
+
+
+

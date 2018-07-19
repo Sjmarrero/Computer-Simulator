@@ -1,0 +1,6 @@
+read
+store r0, 50
+read
+store r0,(r1)
+read
+store r0,(r1)+
