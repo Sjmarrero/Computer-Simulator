@@ -111,7 +111,11 @@ public class Computer implements ComputerInterface {
 			String registerString = instructionLine.substring(firstSpace+1, instructionLine.length());
 			tempRegister = getRegisters(registerString);
 			if(instruction.equals("load")) {
-				loadInstruction(tempRegister[0], tempRegister[1]);
+				if(instructionLine.contains("#")) {
+					moveInstruction(tempRegister[0], tempRegister[1]);
+				}
+				else
+					loadInstruction(tempRegister[0], tempRegister[1]);
 			}
 			else {
 				storeInstruction(tempRegister[0], tempRegister[1]);
@@ -285,7 +289,7 @@ public class Computer implements ComputerInterface {
 		}
 		String[] instructionLoop = instructions.split("@");
 		int index = 0;
-		while(!zero) {
+		while(!(zero && instruction.contains("brnz"))) {
 			instruction = instructionLoop[index++];
 			zero = callInstruction(instruction);
 			if(index == instructionLoop.length)
