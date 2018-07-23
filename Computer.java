@@ -1,12 +1,17 @@
-package part1;
+package part3;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Scanner;
+
 
 public class Computer implements ComputerInterface {
   
+	private ProgramLoader programLoader;
+	
+	private ProgramCounter PC;
+	
+	private InstructionRegister IR;
+	
 	private Adder adder;
 	
 	private Complementer complementer;
@@ -16,98 +21,228 @@ public class Computer implements ComputerInterface {
 	private Printer printer;
 	
 	private Reader reader;
+	
+	private MemoryAddressRegister MAR;
+	
+	private MemoryDataRegister MDR;
+	
+	private MemoryControl memoryControl;
 
-	private Register r0;
+	private Register r0, r1, r2, r3, r4;
 	
-	private Register r1;
+	private Status status;
+		
 	
-	private Register r2;
-	
-	private Register r3;
-	
-	
-	
-	
-	public Computer() {
-		build();
+	public Computer(String programName) {
+		build(programName);
+		int firstInstruction = programLoader.loadProgram(memoryControl);
+		PC.setAddress(firstInstruction);
 	}
 	
-	public void build() {
+	public void build(String program) {
 		
+		programLoader = new ProgramLoader(program);
+		PC = new ProgramCounter();
+		IR = new InstructionRegister();
 		adder = new Adder();
 		complementer = new Complementer();
 		bus = new Bus();
 		printer = new Printer();
 		reader = new Reader();
+		MAR = new MemoryAddressRegister();
+		MDR = new MemoryDataRegister();
+		memoryControl = new MemoryControl();
 		r0 = new Register();
 		r1 = new Register();
 		r2 = new Register();
 		r3 = new Register();
+		r4 = new Register();
+		status = new Status();
 	}
 	
 	public void run() throws FileNotFoundException {
 		
-		String instruction;
-		String[] registers;
-		int regNumber;
-		Register[] tempRegister = new Register[3];
-
-		File programFile= new File("program.txt");
-		Scanner program = new Scanner(programFile);
-		while(program.hasNext()) {
-			instruction = program.next();
-			instruction = instruction.toLowerCase();
-			if(instruction.equals("read")) {
-				readInstruction();
-			}
-			else if(instruction.equals("move") || instruction.equals("add")
-					|| instruction.equals("sub")) {
-				String registerString = program.nextLine();
-				registerString = registerString.replaceAll("\\s","");
-				registers = registerString.split(",");
-				for(int i = 0; i < registers.length; i++) {
-					regNumber = Character.getNumericValue(registers[i].charAt(1));
-					switch(regNumber) {
-					case 0:
-						tempRegister[i] = r0;
-						break;
-					case 1:
-						tempRegister[i] = r1;
-						break;
-					case 2:
-						tempRegister[i] = r2;
-						break;
-					case 3:
-						tempRegister[i] = r3;
-						break;
-						default:
-							System.out.println(registers[i] + " does not exist");
-					}
-				}
-				if(instruction.equals("move"))
-					moveInstruction(tempRegister[0], tempRegister[1]);
-				else if(instruction.equals("add"))
-					addInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
-				else
-					subInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
-			}
-			else if(instruction.equals("print")) {
-				printInstruction();
-			}
-			else
-				System.out.println(instruction.toUpperCase() + "- incompatible instruction");
+		while(status.running()) {
+			fetch();
+			adjustPC();
+			execute();
 		}
-		program.close();
+		memoryControl.dumpMemory();
+	}
+
+	private void fetch() {
+		loadInstruction(IR, PC.getAddress());
 	}
 	
-	private void readInstruction(){
-		try {
-			reader.storeValue();
-		} catch (IOException e) {
-			e.printStackTrace();
+	private void adjustPC() {
+		String instruction = IR.getInstruction();
+		if(instruction.contains("440") && status.getZero()) {
+			instruction = instruction.substring(instruction.indexOf(" "), instruction.indexOf("/")-1);
+			instruction = instruction.replaceAll(" ", "");
+			int newPC = Integer.valueOf(instruction);
+			PC.setAddress(newPC);
 		}
-		bus.setValue(reader.getValue());
-		r0.setValue(bus.getValue());
+		else
+			PC.increment();
+	}
+	
+	private void execute() {
+		String instruction = IR.getInstruction();
+		callInstruction(instruction);
+	}
+
+	private void callInstruction(String instructionLine) {
+		Register[] tempRegister = new Register[3];
+		int firstSpace = instructionLine.indexOf(' ');
+		int termination = instructionLine.indexOf('/');
+		int instruction = Integer.valueOf(instructionLine.substring(0, firstSpace).trim());
+		String registerString;
+		
+		switch(instruction) {
+		case 110:
+			registerString = instructionLine.substring(0, termination);
+			tempRegister = getRegisters(registerString);
+			addInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
+			break;
+		case 120:
+			registerString = instructionLine.substring(0, termination);
+			tempRegister = getRegisters(registerString);
+			subInstruction(tempRegister[0], tempRegister[1], tempRegister[2]);
+			break;
+		case 160:
+			registerString = instructionLine.substring(0, termination);
+			tempRegister = getRegisters(registerString);
+			decInstruction(tempRegister[0]);
+			break;
+		case 440:
+			break;
+		case 810:
+			readInstruction();
+			break;
+		case 820:
+			printInstruction();
+			break;
+		case 000:
+			break;
+		case 999:
+			haltInstruction();
+			break;
+		case 510:
+			registerString = instructionLine.substring(0, termination);
+			tempRegister = getRegisters(registerString);
+			moveInstruction(tempRegister[0], tempRegister[1]);
+			break;
+		case 610:
+		case 620:
+		case 630:
+			registerString = instructionLine.substring(0, termination);
+			tempRegister = getRegisters(registerString);
+			loadInstruction(tempRegister[0], tempRegister[1]);
+			break;
+		case 640:
+			registerString = instructionLine.substring(0, termination);
+			tempRegister = getRegisters(registerString);
+			moveInstruction(tempRegister[1], tempRegister[0]);
+			break;
+		case 710:
+		case 720:
+		case 730:
+			registerString = instructionLine.substring(0, termination);
+			tempRegister = getRegisters(registerString);
+			storeInstruction(tempRegister[0], tempRegister[1]);
+			break;
+			
+			default:
+				haltInstruction();
+				break;
+		}
+	}
+	
+	private Register[] getRegisters(String regString) {
+		String[] registers;
+		Register[] temp = new Register[3];
+		
+		regString = regString.replaceAll(" +", ",");
+		registers = regString.split(",");
+		
+		switch(Integer.valueOf(registers[0])) {
+		case 110:
+		case 120:
+			for(int i = 0; i < 3; i++) {
+				temp[i] = getReg(Integer.valueOf(registers[i+1]));
+			}
+			break;
+		case 160:
+			temp[0] = getReg(Integer.valueOf(registers[1]));
+			break;
+		case 510:
+			for(int i = 0; i < 2; i++) {
+				temp[i] = getReg(Integer.valueOf(registers[i+1]));
+			}
+			break;
+		case 610:
+		case 710:
+			temp = new Register[2];
+			temp[0] = getReg(Integer.valueOf(registers[1]));
+			temp[1] = new Register(Integer.valueOf(registers[2]));
+			break;
+		case 620:
+		case 720:
+			temp = new Register[2];
+			temp[0] = getReg(Integer.valueOf(registers[1]));
+			temp[1] = getReg(Integer.valueOf(registers[2]));
+			break;
+		case 630:
+		case 730:
+			temp = new Register[2];
+			temp[0] = getReg(Integer.valueOf(registers[1]));
+			temp[1] = getReg(Integer.valueOf(registers[2]));
+			temp[1].setValue(temp[1].getValue() + 1);
+			break;
+		case 640:
+			temp = new Register[2];
+			temp[0] = getReg(Integer.valueOf(registers[1]));
+			temp[1] = new Register(Integer.valueOf(registers[2]));
+			break;
+		}
+		return temp;
+		
+	}
+	
+	private Register getReg(int regNumber) {
+		switch(regNumber) {
+		case 0:
+			return r0;
+		case 1:
+			return r1;
+		case 2:
+			return r2;
+		case 3:
+			return r3;
+		case 4:
+			return r4;
+			default:
+				System.out.println("Register Number: " + regNumber + " does not exist");
+				return null;
+		}
+	}
+	
+	private void haltInstruction() {
+		status.setRunning(false);
+	}
+
+	private void readInstruction(){
+		bus.setControlLines("read");
+		if(bus.getControlLines().equals("read"))
+		{
+			try {
+				reader.storeValue();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		bus.setDataLines(Integer.toString(reader.getValue()));
+		r0.setValue(Integer.valueOf(bus.getDataLines()));
+		}
 	}
 	
 	private void moveInstruction(Register ra, Register rb) {
@@ -120,12 +255,20 @@ public class Computer implements ComputerInterface {
 		System.err.println("\t\t\tADD " + ra + "," + rb + "," + rc); //for instruction trace
 		adder.setValues(ra.getValue(), rb.getValue());
 		rc.setValue(adder.add());
+		if(rc.getValue() == 0) {
+			status.setZero();
+		}
+		else
+			status.unsetZero();
 	}
 	
 	private void printInstruction() {
-		bus.setValue(r0.getValue());
-		printer.setValue(bus.getValue());
-		printer.printValue();
+		bus.setControlLines("write");
+		if(bus.getControlLines().equals("write")) {
+			bus.setDataLines(r0.getValue());
+			printer.setValue(bus.getDataLines());
+			printer.printValue();
+		}
 	}
 	
 	private void subInstruction(Register ra, Register rb, Register rc) {
@@ -133,6 +276,47 @@ public class Computer implements ComputerInterface {
 		complementer.setValue(ra.getValue());
 		adder.setValues(complementer.getValue(), rb.getValue());
 		rc.setValue(adder.add());
+		if(rc.getValue() == 0) {
+			status.setZero();
+		}
+		else
+			status.unsetZero();
+	}
+	
+	private void loadInstruction(Register destination, int source) {
+		MAR.setAddress(source);
+		bus.setAddressLines(MAR.getAddress());
+		bus.setControlLines("read");
+		memoryControl.execute(bus);
+		MDR.setValue(bus.getDataLines());
+		destination.setValue(MDR.getValue());
+	}
+	
+	private void loadInstruction(Register destination, Register source) {
+		loadInstruction(destination, source.getValue());
+	}
+	
+	private void storeInstruction(Register source, int destination) {
+		MAR.setAddress(destination);
+		bus.setAddressLines(MAR.getAddress());
+		MDR.setValue(source.getValue());
+		bus.setDataLines(MDR.getValue());
+		bus.setControlLines("write");
+		memoryControl.execute(bus);
+	}
+	
+	private void storeInstruction(Register source, Register destination) {
+		storeInstruction(source, destination.getValue());
+	}
+	
+	private void decInstruction(Register ra) {
+		adder.setValues(ra.getValue(), -1);
+		ra.setValue(adder.add());
+		if(ra.getValue() == 0) {
+			status.setZero();
+		}
+		else
+			status.unsetZero();
 	}
 
 }

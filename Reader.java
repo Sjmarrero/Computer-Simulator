@@ -1,4 +1,4 @@
-package part1;
+package part3;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class Reader implements ReaderInterface {
 	
 	public void storeValue() throws IOException {	
 	
-	System.out.println("* ");
+	System.out.print("* ");
 	
 	BufferedReader br = new BufferedReader (new InputStreamReader (System.in));
 	

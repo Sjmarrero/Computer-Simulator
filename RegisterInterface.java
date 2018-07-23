@@ -1,4 +1,4 @@
-package part1;
+package part3;
 
 public interface RegisterInterface {
 
@@ -17,4 +17,5 @@ public interface RegisterInterface {
 	 * @return value
 	 */
 	public int getValue();
+
 }

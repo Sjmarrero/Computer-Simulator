@@ -1,4 +1,4 @@
-package part1;
+package part3;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package part1;
+package part3;
 
 public class Printer implements PrinterInterface {
 	
@@ -10,6 +10,10 @@ public class Printer implements PrinterInterface {
 	
 	public void setValue(int a) {
 		value = a;
+	}
+	
+	public void setValue(String a) {
+		value = Integer.valueOf(a);
 	}
 	
 	public void printValue() {
