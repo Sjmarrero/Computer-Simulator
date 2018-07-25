@@ -1,0 +1,300 @@
+In part 2 of the Computer Simulator new classes AddressLines, DataLines 
+and ControlLines are created. Class Reader and Class Printer are changed
+so they get control signal from ControlLines object and the data from 
+DataLine object. Also, a new class Memory is added which is an array of 
+1024 integers. The simulated fetch cycle is executed via object of 
+MemoryControl class.
+Method load with a destination register and various
+sources like memory location, indirect address, auto increment register,
+and immediate operand is created. Similarly, method store with a 
+a source register and various destinations is created. Registers 
+communicate with memory by means of the bus. 
+Another indicator class Status that indicates the result of arithmetic
+operation is created.
+Further, a memoryDump() method that displays the address and content of 
+those words with non zero content. 
+
+Each of the load and store functions are demonstrated as follow:
+
+Following instruction set is used to demonstrate load and store
+functions.
+
+read			// reads integer from keyboard
+store r0, 50		// stores the integer in memory location 50
+read			// reads another integer
+store r0,(r1)		// stores the integer in indirect address of R1
+			// which is memory location 0
+read			// reads another integer 
+store r0,(r1)+		// stores the integer in an auto-incremented
+			// register indirect address 
+load r0, 50		// loads the content of location 50 into R0
+print			// print
+load r0,(r2)		// loads the content of register indirect address
+print			// print
+load r0,(r2)+		// loads the content of auto-incremented register
+print			// print
+load r0, #1		// loads the content of immediate operand
+print			// print
+read			// reads another integer
+store r0, 1023		// stores the integer in memory location 1023
+move r2, r0		// moves R2 to R0
+load r0, 1023		// loads the content of location 1023
+print			// print
+
+
+Output:
+
+Enter the integer
+
+* 7
+
+Stores 7 in memory location 50.
+
+Enter another integer
+
+* 9
+
+Stores 9 in memory location of address of R1(0).
+
+Enter another integer
+
+* 11
+
+Stores 11 in memory location of auto incremented address of R1+(1).
+
+Loads and print the memory location 50.
+
+>> 7
+
+Loads and print the indirect address which is 0.
+
+>> 9
+
+Loads and print the auto incremented indirect access which is 1.
+
+>> 11
+
+Loads and print the content of immediate operand #1.
+
+>> 11
+
+Read another integer.
+
+* 5
+
+Stores 11 in memory location 1023.
+
+Load and print the content of location 1023.
+
+>> 5
+			MOVE part2.Register@4aa298b7,part2.Register@7d4991ad
+
+
+Following output from memoryDump() method demonstrate
+
+memory address 0 and 1023 exist and work.
+
+
+Address			Content
+-------------------------------
+0			9
+1			11
+50			7
+1023			5
+
+
+Following instruction set is used to demonstrate load and store
+functions.
+
+read			//read the number of integers you want 
+			//execute
+store r0,0
+load r3,0
+
+loop:			// loop until content of R3 IS 0.
+read			// read integers
+add r2,1,r2 		// increment the memory location.
+store r0,(r2)		// store number in R2.
+dec r3			// updating counter
+brnz loop
+loop2:
+load r0,r2		// load the numbers to R0.
+add r0, r3, r3		// accumulate sum in R3.
+dec r2			// update the counter
+brnz loop2
+store r3, 1001		// store sum in location 1001
+load r2,0		// load the number of integers in R2.
+add r2,1,r3		// add 1 to the number and store in R3.
+loop3:
+load r0,r2		
+store r0,r3
+add r3,1,r3
+dec r2			// update the counter.
+brnz loop3
+
+loop4:
+add r1,1,r1
+load r2,0
+add  r2,r1,r2
+load r0,r2
+load r3, r1
+sub  r3,r0,r0		// subtract the numbers at corresponding 
+			numbers of List A and List B
+print
+load r2,0
+sub  r1,r2,r2
+brnz loop4
+
+Output:
+
+Enter the number of integers you want to execute.
+* 10
+
+Following are the integers.
+
+* 2
+			ADD part2.Register@4aa298b7,part2.Register@7d4991ad,part2.Register@4aa298b7* 
+3
+			ADD part2.Register@4aa298b7,part2.Register@28d93b30,part2.Register@4aa298b7
+* 4
+			ADD part2.Register@4aa298b7,part2.Register@1b6d3586,part2.Register@4aa298b7
+* 5
+			ADD part2.Register@4aa298b7,part2.Register@4554617c,part2.Register@4aa298b7
+* 7
+			ADD part2.Register@4aa298b7,part2.Register@74a14482,part2.Register@4aa298b7* 
+9
+			ADD part2.Register@4aa298b7,part2.Register@1540e19d,part2.Register@4aa298b7
+* 2
+			ADD part2.Register@4aa298b7,part2.Register@677327b6,part2.Register@4aa298b7* 
+6
+			ADD part2.Register@4aa298b7,part2.Register@14ae5a5,part2.Register@4aa298b7
+* 7
+			ADD part2.Register@4aa298b7,part2.Register@7f31245a,part2.Register@4aa298b7
+* 10
+
+
+The difference of the corresponding numbers of List B
+and List A, i.e List[B] - List[A] is printed in 
+following output.
+
+List A and List B are printed on the bottom of this page.
+
+
+			ADD part2.Register@4aa298b7,part2.Register@6d6f6e28,part2.Register@4aa298b7
+			ADD part2.Register@135fbaa4,part2.Register@45ee12a7,part2.Register@45ee12a7
+			ADD part2.Register@135fbaa4,part2.Register@45ee12a7,part2.Register@45ee12a7
+			ADD part2.Register@135fbaa4,part2.Register@45ee12a7,part2.Register@45ee12a7
+			ADD part2.Register@135fbaa4,part2.Register@45ee12a7,part2.Register@45ee12a7
+			ADD part2.Register@135fbaa4,part2.Register@45ee12a7,part2.Register@45ee12a7
+			ADD part2.Register@135fbaa4,part2.Register@45ee12a7,part2.Register@45ee12a7
+			ADD part2.Register@135fbaa4,part2.Register@45ee12a7,part2.Register@45ee12a7
+			ADD part2.Register@135fbaa4,part2.Register@45ee12a7,part2.Register@45ee12a7
+			ADD part2.Register@135fbaa4,part2.Register@45ee12a7,part2.Register@45ee12a7
+			ADD part2.Register@135fbaa4,part2.Register@45ee12a7,part2.Register@45ee12a7
+			ADD part2.Register@4aa298b7,part2.Register@330bedb4,part2.Register@45ee12a7
+			ADD part2.Register@45ee12a7,part2.Register@2503dbd3,part2.Register@45ee12a7
+			ADD part2.Register@45ee12a7,part2.Register@4b67cf4d,part2.Register@45ee12a7
+			ADD part2.Register@45ee12a7,part2.Register@7ea987ac,part2.Register@45ee12a7
+			ADD part2.Register@45ee12a7,part2.Register@12a3a380,part2.Register@45ee12a7
+			ADD part2.Register@45ee12a7,part2.Register@29453f44,part2.Register@45ee12a7
+			ADD part2.Register@45ee12a7,part2.Register@5cad8086,part2.Register@45ee12a7
+			ADD part2.Register@45ee12a7,part2.Register@6e0be858,part2.Register@45ee12a7
+			ADD part2.Register@45ee12a7,part2.Register@61bbe9ba,part2.Register@45ee12a7
+			ADD part2.Register@45ee12a7,part2.Register@610455d6,part2.Register@45ee12a7
+			ADD part2.Register@45ee12a7,part2.Register@511d50c0,part2.Register@45ee12a7
+			ADD part2.Register@60e53b93,part2.Register@5e2de80c,part2.Register@60e53b93
+			ADD part2.Register@4aa298b7,part2.Register@60e53b93,part2.Register@4aa298b7
+			SUBTRACT part2.Register@45ee12a7,part2.Register@135fbaa4,part2.Register@135fbaa4
+			SUBTRACT part2.Register@60e53b93,part2.Register@4aa298b7,part2.Register@4aa298b7
+			ADD part2.Register@60e53b93,part2.Register@1d44bcfa,part2.Register@60e53b93
+			ADD part2.Register@4aa298b7,part2.Register@60e53b93,part2.Register@4aa298b7
+			SUBTRACT part2.Register@45ee12a7,part2.Register@135fbaa4,part2.Register@135fbaa4
+			SUBTRACT part2.Register@60e53b93,part2.Register@4aa298b7,part2.Register@4aa298b7
+			ADD part2.Register@60e53b93,part2.Register@266474c2,part2.Register@60e53b93
+			ADD part2.Register@4aa298b7,part2.Register@60e53b93,part2.Register@4aa298b7
+
+Difference between 10 - 2 is. 
+
+>> 8
+
+And so on.
+
+>> 4
+			SUBTRACT part2.Register@45ee12a7,part2.Register@135fbaa4,part2.Register@135fbaa4
+			SUBTRACT part2.Register@60e53b93,part2.Register@4aa298b7,part2.Register@4aa298b7
+			ADD part2.Register@60e53b93,part2.Register@6f94fa3e,part2.Register@60e53b93
+			ADD part2.Register@4aa298b7,part2.Register@60e53b93,part2.Register@4aa298b7
+			SUBTRACT part2.Register@45ee12a7,part2.Register@135fbaa4,part2.Register@135fbaa4
+			SUBTRACT part2.Register@60e53b93,part2.Register@4aa298b7,part2.Register@4aa298b7
+>> 2
+>> -3
+			ADD part2.Register@60e53b93,part2.Register@5e481248,part2.Register@60e53b93
+			ADD part2.Register@4aa298b7,part2.Register@60e53b93,part2.Register@4aa298b7
+			SUBTRACT part2.Register@45ee12a7,part2.Register@135fbaa4,part2.Register@135fbaa4
+			SUBTRACT part2.Register@60e53b93,part2.Register@4aa298b7,part2.Register@4aa298b7
+			ADD part2.Register@60e53b93,part2.Register@66d3c617,part2.Register@60e53b93
+			ADD part2.Register@4aa298b7,part2.Register@60e53b93,part2.Register@4aa298b7
+			SUBTRACT part2.Register@45ee12a7,part2.Register@135fbaa4,part2.Register@135fbaa4
+			SUBTRACT part2.Register@60e53b93,part2.Register@4aa298b7,part2.Register@4aa298b7
+			ADD part2.Register@60e53b93,part2.Register@63947c6b,part2.Register@60e53b93
+			ADD part2.Register@4aa298b7,part2.Register@60e53b93,part2.Register@4aa298b7
+			SUBTRACT part2.Register@45ee12a7,part2.Register@135fbaa4,part2.Register@135fbaa4
+			SUBTRACT part2.Register@60e53b93,part2.Register@4aa298b7,part2.Register@4aa298b7
+			ADD part2.Register@60e53b93,part2.Register@2b193f2d,part2.Register@60e53b93
+			ADD part2.Register@4aa298b7,part2.Register@60e53b93,part2.Register@4aa298b7
+			SUBTRACT part2.Register@45ee12a7,part2.Register@135fbaa4,part2.Register@135fbaa4
+			SUBTRACT part2.Register@60e53b93,part2.Register@4aa298b7,part2.Register@4aa298b7
+			ADD part2.Register@60e53b93,part2.Register@355da254,part2.Register@60e53b93
+			ADD part2.Register@4aa298b7,part2.Register@60e53b93,part2.Register@4aa298b7
+			SUBTRACT part2.Register@45ee12a7,part2.Register@135fbaa4,part2.Register@135fbaa4
+			SUBTRACT part2.Register@60e53b93,part2.Register@4aa298b7,part2.Register@4aa298b7
+			ADD part2.Register@60e53b93,part2.Register@4dc63996,part2.Register@60e53b93
+			ADD part2.Register@4aa298b7,part2.Register@60e53b93,part2.Register@4aa298b7
+			SUBTRACT part2.Register@45ee12a7,part2.Register@135fbaa4,part2.Register@135fbaa4
+			SUBTRACT part2.Register@60e53b93,part2.Register@4aa298b7,part2.Register@4aa298b7
+>> 2
+>> -2
+>> 3
+>> -2
+>> -4
+>> -8
+
+
+List A and List B are printed with the sum in memory location 1001.
+
+Memory location 0 has the number of integers to execute. (10)
+
+Address 1 - 10 is list A and Address 11-20 is list B.
+
+Address 1001 is the sum of ten integers.
+ 
+Address			Content
+-------------------------------
+0			10
+1			2
+2			3
+3			4
+4			5
+5			7
+6			9
+7			2
+8			6
+9			7
+10			10
+11			10
+12			7
+13			6
+14			2
+15			9
+16			7
+17			5
+18			4
+19			3
+20			2
+1001			55
+
+
+
+
+
+
