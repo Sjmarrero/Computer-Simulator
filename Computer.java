@@ -39,6 +39,13 @@ public class Computer implements ComputerInterface {
 		PC.setAddress(firstInstruction);
 	}
 	
+	public Computer(String programName, String readFile) {
+		build(programName);
+		int firstInstruction = programLoader.loadProgram(memoryControl);
+		reader.openFile(readFile);
+		PC.setAddress(firstInstruction);
+	}
+	
 	public void build(String program) {
 		
 		programLoader = new ProgramLoader(program);
@@ -76,7 +83,7 @@ public class Computer implements ComputerInterface {
 	
 	private void adjustPC() {
 		String instruction = IR.getInstruction();
-		if(instruction.contains("440") && status.getZero()) {
+		if(instruction.contains("440") && !status.getZero()) {
 			instruction = instruction.substring(instruction.indexOf(" "), instruction.indexOf("/")-1);
 			instruction = instruction.replaceAll(" ", "");
 			int newPC = Integer.valueOf(instruction);
