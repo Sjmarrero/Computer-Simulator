@@ -1,0 +1,57 @@
+In part 1 of the Computer Simulator, the main method only instantiates the computer object
+and call run method to start the computer simulator. Each classes such as Register,
+Adder, Complementer, Reader, Printer, and bus are created  to perform specific functions as
+instructed in the instruction. Each classes are provided with method to set its input and 
+method to get its output. Class Bus is used to transfer data from class Reader class to 
+class Printer. Class Computer instantiates necessary components and registers in the method
+ build() and method run() simulates the execution of program. It calls on necessary 
+methods to carry out the execution.
+
+Part 1 executes the given instruction set as follow:
+
+READMOVE R0,R1READMOVE R0,R2ADD R1,R2,R3MOVE R3,R0PRINTREADMOVE  R0, R1SUBTRACT R1,R3,R0PRINTREADMOVE R0,R2ADD R3,R2,R1MOVE R1,R0PRINT
+
+
+Output:
+
+As the instruction above, the program reads a number from keyboard and moves it to R1.
+
+* 
+9
+			MOVE part2.Register@4aa298b7,part2.Register@7d4991ad
+
+The program reads another number and moves it to R2.
+
+* 
+7
+			MOVE part2.Register@4aa298b7,part2.Register@28d93b30
+
+It adds the values in R1 and R2 an puts the sum in R3.
+
+>> 16
+			ADD part2.Register@7d4991ad,part2.Register@28d93b30,part2.Register@1b6d3586
+			MOVE part2.Register@1b6d3586,part2.Register@4aa298b7
+
+The program reads another number and moves it to R1.
+
+* 
+2
+			MOVE part2.Register@4aa298b7,part2.Register@7d4991ad
+
+It subtract the value in R3 (previous sum) to the new number entered.
+
+>> 14			SUBTRACT part2.Register@7d4991ad,part2.Register@1b6d3586,part2.Register@4aa298b7
+
+The program reads another number and moves it to R2.
+
+* 
+-1
+			MOVE part2.Register@4aa298b7,part2.Register@28d93b30
+
+It adds the values in R3 and R2 an puts the sum in R1.
+
+R1 is moved to R0. 
+
+>> 15
+			ADD part2.Register@1b6d3586,part2.Register@28d93b30,part2.Register@7d4991ad
+			MOVE part2.Register@7d4991ad,part2.Register@4aa298b7
