@@ -1,0 +1,71 @@
+In part 3 of the Computer Simulator program, new classes
+ProgramCounter and InstructionRegister are created.
+Also, a new class ProgramLoader that loads a machine
+language program. The method run() is changed and 
+contains methods fetch(), adjustPC(), and execute().
+Furthermore, a state indicator in the Status class
+is added that indicates the program is running
+during reading instructions and turns program off
+as soon as instruction is HALT.
+Method adjustPC() changes the program counter 
+to its new value.
+Appropriate methods are called from the method execute().
+
+Following instruction set is read from file and executed:
+
+Program Trivial Example
+400
+403
+29                      //Data
+505                     //Data
+211                     //Data
+810                     //READ
+510      0     1        //MOVE R0, R1
+810                     //READ
+510      0     2        //MOVE R0, R2
+110      1     2     3  //ADD R1, R2, R3
+510      3     0        //MOVE R3, R0
+820                     //PRINT
+640      4   732        //LOAD  R4, #732
+710      4   909        //STORE  R4, 909
+610      3   909        //LOAD  R3, 909
+160      3              //DEC  R3
+820                     //PRINT
+999                     //HALT
+
+
+Output:
+
+Program Trivial Example
+* 7
+* 			MOVE part3.Register@4aa298b7,part3.Register@7d4991ad
+
+5
+			MOVE part3.Register@4aa298b7,part3.Register@28d93b30
+>> 12
+
+			ADD part3.Register@7d4991ad,part3.Register@28d93b30,part3.Register@1b6d3586
+			MOVE part3.Register@1b6d3586,part3.Register@4aa298b7
+
+			MOVE part3.Register@4554617c,part3.Register@74a14482
+
+>> 12
+Address			Content
+-------------------------------
+400			29
+401			505
+402			211
+403			810                     //read
+404			510      0     1        //move r0, r1
+405			810                     //read
+406			510      0     2        //move r0, r2
+407			110      1     2     3  //add r1, r2, r3
+408			510      3     0        //move r3, r0
+409			820                     //print
+410			640      4   732        //load  r4, #732
+411			710      4   909        //store  r4, 909
+412			610      3   909        //load  r3, 909
+413			160      3              //dec  r3
+414			820                     //print
+415			999                     //halt
+909			732
